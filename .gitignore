@@ -2,3 +2,4 @@ dataset_images
 dataset_csv
 __pycache__
 tf-env
+.idea
