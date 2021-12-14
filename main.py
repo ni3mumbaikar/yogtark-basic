@@ -11,8 +11,10 @@ import matplotlib
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-getCsv = False
+getCsv = True
 classes = []
+
+# TODO: Change csv layouts to individual X and Y parameter of everykeypoint in both individual and final_training_set
 
 
 def generateIndividualCsv():
@@ -48,21 +50,34 @@ def generateTrainingSet():
 
                     # extracting each data row one by one
                     for row in csvreader:
-                        row.pop(4)
-                        row.pop(3)
+                        # removing name of keypoint and index colounn
+                        row.pop(2)
                         row.pop(0)
-                        filerow.append(row)
+                        # appending value of x/y only instead of [54.242] it is now 54.242
+                        filerow.append(row[0])
                     filerow.append(classitem.classname[0])
                     rows.append(filerow)
 
-            # print(len(rows))
+        keypoint_string = [
+            'noseX', 'noseY',
+            'left_eyeX', 'left_eyeY',
+            'right_eyeX', 'right_eyeY',
+            'left_earX', 'left_earY',
+            'right_earX', 'right_earY',
+            'left_shoulderX', 'left_shoulderY',
+            'right_shoulderX', 'right_shoulderY',
+            'left_elbowX', 'left_elbowY',
+            'right_elbowX', 'right_elbowY',
+            'left_wristX', 'left_wristY',
+            'right_wristX', 'right_wristY',
+            'left_hipX', 'left_hipY',
+            'right_hipX', 'right_hipY',
+            'left_kneeX', 'left_kneeY',
+            'right_kneeX', 'right_kneeY',
+            'left_ankleX', 'left_ankleY',
+            'right_ankleX', 'right_ankleY', 'pose']
 
-        x = np.array(rows)
-        # print(x)
-        keypoint_string = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow',
-                           'left_wrist',  'right_wrist',  'left_hip', 'right_hip', 'left_knee', 'right_knee',  'left_ankle', 'right_ankle', 'pose']
-
-        DF = pd.DataFrame(x, columns=keypoint_string)
+        DF = pd.DataFrame(rows, columns=keypoint_string)
 
         # save the dataframe as a csv file
         DF.to_csv("./training_set.csv")

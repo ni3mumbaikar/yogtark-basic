@@ -8,7 +8,7 @@ class yogtark:
         model = tf.keras.Sequential()
         layer_1 = layers.Dense(17, shape=(17,), name="input_layer")
         layer_2 = layers.Dense(12, input_shape=(12,), name="hidden1")
-        layer_3 = layers.Dense(12, input_shape=(12,))
+        layer_3 = layers.Dense(12, input_shape=(12,), name="hidden2")
         layer_4 = layers.Dense(4, input_shape=(12,))
 
         model.add(layer_1)

@@ -35,11 +35,11 @@ class csv_generator:
             os.mkdir(csv_path)
 
         filenames = [img for img in glob.glob(self.classpath+'/*.jpeg')]
-        filenames.sort()
+        # filenames.sort()
         images = []
         count = 0
         for img in filenames:
-            df = pd.DataFrame({'Y': [], 'X': [], 'Z': []})
+            df = pd.DataFrame({'Value': []})
             # if count > 1:
             # break
             print(self.classname, ':', 'Generating csv for', 'image number',
@@ -55,6 +55,7 @@ class csv_generator:
             interpreter.allocate_tensors()
 
             input_image = tf.cast(input_image, dtype=tf.uint8)
+
             input_details = interpreter.get_input_details()
             output_details = interpreter.get_output_details()
 
@@ -64,8 +65,24 @@ class csv_generator:
             # print(output_details[0])
             keypoints = interpreter.get_tensor(output_details[0]['index'])
 
-            keypoint_string = ['nose ', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow',
-                               'left_wrist',  'right_wrist',  'left_hip', 'right_hip', 'left_knee', 'right_knee',  'left_ankle', 'right_ankle']
+            keypoint_string = [
+                'noseX', 'noseY',
+                'left_eyeX', 'left_eyeY',
+                'right_eyeX', 'right_eyeY',
+                'left_earX', 'left_earY',
+                'right_earX', 'right_earY',
+                'left_shoulderX', 'left_shoulderY',
+                'right_shoulderX', 'right_shoulderY',
+                'left_elbowX', 'left_elbowY',
+                'right_elbowX', 'right_elbowY',
+                'left_wristX', 'left_wristY',
+                'right_wristX', 'right_wristY',
+                'left_hipX', 'left_hipY',
+                'right_hipX', 'right_hipY',
+                'left_kneeX', 'left_kneeY',
+                'right_kneeX', 'right_kneeY',
+                'left_ankleX', 'left_ankleY',
+                'right_ankleX', 'right_ankleY']
 
             # print(keypoints[0][0])
 
@@ -87,8 +104,10 @@ class csv_generator:
 
             for keypoint in keypoints[0][0]:
 
-                s_row = pd.Series(keypoint, index=df.columns)
-                df = df.append(s_row, ignore_index=True)
+                x_row = pd.Series(keypoint[1], index=df.columns)
+                y_row = pd.Series(keypoint[0], index=df.columns)
+                df = df.append(x_row, ignore_index=True)
+                df = df.append(y_row, ignore_index=True)
                 x = int(keypoint[1] * width)
                 y = int(keypoint[0] * height)
 
