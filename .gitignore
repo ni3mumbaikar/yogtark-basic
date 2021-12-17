@@ -3,3 +3,5 @@ dataset_csv
 __pycache__
 tf-env
 .idea
+testing_set.csv
+training_set.csv

@@ -18,10 +18,12 @@ class csv_generator:
     @classpath : path to be passed of a specific class
     """
 
-    def __init__(self, classname, classpath):
+    def __init__(self, classname, classpath, isTrainset, classvalue):
         print('Loaded new class : ', classpath)
         self.classpath = classpath
         self.classname = classname
+        self.isTrainset = isTrainset
+        self.classvalue = classvalue
 
     # Actual method to generate csv files for each sample of present at classpath
 
@@ -30,7 +32,12 @@ class csv_generator:
         # if dataset_csv and its child directories are not present in the system then this block creates new directory structure for storing csv
         if not os.path.exists('./dataset_csv'):
             os.mkdir('./dataset_csv')
-        csv_path = './dataset_csv/'+self.classname
+            os.mkdir('./dataset_csv/TRAIN')
+            os.mkdir('./dataset_csv/TEST')
+        if self.isTrainset:
+            csv_path = './dataset_csv/TRAIN/'+self.classname
+        else:
+            csv_path = './dataset_csv/TEST/'+self.classname
         if not os.path.exists(csv_path):
             os.mkdir(csv_path)
 
@@ -126,6 +133,10 @@ class csv_generator:
             # cv2.imshow("pose estimation", image_np)
             # cv2.waitKey()
             df['Keypoints'] = pd.Series(keypoint_string)
-            df.to_csv('./dataset_csv/'+self.classname +
-                      '/'+self.classname+'_'+str(count)+'.csv')
+            if self.isTrainset:
+                df.to_csv('./dataset_csv/TRAIN/'+self.classname +
+                          '/'+self.classname+'_'+str(count)+'.csv')
+            else:
+                df.to_csv('./dataset_csv/TEST/'+self.classname +
+                          '/'+self.classname+'_'+str(count)+'.csv')
             count = count + 1
