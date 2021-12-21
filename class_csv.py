@@ -29,7 +29,7 @@ class csv_generator:
 
     def generate_csv(self):
 
-        # if dataset_csv and its child directories are not present in the system then this block creates new directory structure for storing csv
+        # if dir dataset_csv and its child directories are not present in the system then this block creates new directory structure for storing csv
         if not os.path.exists('./dataset_csv'):
             os.mkdir('./dataset_csv')
             os.mkdir('./dataset_csv/TRAIN')

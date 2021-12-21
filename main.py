@@ -121,7 +121,8 @@ def generateTrainingSet():
 
 def modelinit():
     yg = yogtark()
-    yg.train()
+    yg.train(100)
+    yg.test()
 
 
 start = time.time()
@@ -129,4 +130,4 @@ generateIndividualCsv()
 end = time.time()
 print('Time taken : is', str(end-start) + 's')
 generateTrainingSet()
-# modelinit()
+modelinit()
