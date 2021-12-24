@@ -12,8 +12,11 @@ import time
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+# Toggle this variable to generate Individual Csv in dataset_csv folder
 getCsv = False
+
 classes = []
+
 
 
 def generateIndividualCsv():
@@ -98,7 +101,7 @@ def generateTrainingSet():
                         row.pop(0)
                         # appending value of x/y only instead of [54.242] it is now 54.242
                         filerow.append(row[0])
-                    # appending a number for each class
+                    # labeling for supervised dataset
                     filerow.append(classitem.classvalue)
                     if classitem.isTrainset:
                         trainrows.append(filerow)
@@ -127,7 +130,7 @@ def modelinit():
 
 start = time.time()
 generateIndividualCsv()
-end = time.time()
-print('Time taken : is', str(end-start) + 's')
 generateTrainingSet()
-modelinit()
+# modelinit()
+end = time.time()
+print('Task Done in ', str(end-start) + 's')
