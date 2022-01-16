@@ -43,7 +43,7 @@ class yogtark:
                     x.append(row)
             # casting lists to numpy array as tf model expects a np array or tensor for x and y
             x = np.array(x, dtype=np.float64)
-            y = np.array(y, dtype=np.int32)
+            y = np.array(y, dtype=np.float64)
             print(len(x), len(y))
 
             self.model.fit(x=x, y=y, shuffle=True, epochs=epoch)
@@ -87,7 +87,7 @@ class yogtark:
 
     def save(self):
         savepath = './model_implementation/output'
-        if(not os.path(savepath)):
+        if(not os.path.exists(savepath)):
             os.mkdir(savepath)
         # Save as tensorflow model
         KERAS_MODEL_NAME = "./model_implementation/output/tf_model_yogtark.h5"

@@ -122,7 +122,7 @@ def generateTrainingSet():
 
 def modelinit():
     model = yogtark()
-    model.train(500)
+    model.train(100)
     model.test()
     model.save()
 

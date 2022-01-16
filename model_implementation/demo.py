@@ -83,6 +83,29 @@ while cap.isOpened():
     draw_connections(frame, keypoints_with_scores, EDGES, 0.4)
     draw_keypoints(frame, keypoints_with_scores, 0.4)
 
+    # Create model interpreter and allocate tensors to it
+    yg_model_path = "./output/tf_lite_model_yogtark.tflite"
+    yg_interpreter = tf.lite.Interpreter(yg_model_path)
+    yg_interpreter.allocate_tensors()
+
+    # Setup input and output
+    yg_input_details = yg_interpreter.get_input_details()
+    yg_output_details = yg_interpreter.get_output_details()
+
+    newkp = np.squeeze(keypoints_with_scores)
+    featureVector = []
+    for kp in newkp:
+        featureVector.append(kp[1])
+        featureVector.append(kp[0])
+    featureVector = np.array(featureVector, dtype=np.float32).reshape((1, 34))
+
+    # Pose classification
+    yg_interpreter.set_tensor(
+        yg_input_details[0]['index'], np.array(featureVector))
+    yg_interpreter.invoke()
+    yg_pose = yg_interpreter.get_tensor(yg_output_details[0]['index'])
+    # print(yg_pose)
+    print(featureVector)
     cv2.imshow('MoveNet Lightning', frame)
 
     if cv2.waitKey(10) & 0xFF == ord('q'):
