@@ -5,3 +5,4 @@ tf-env
 .idea
 testing_set.csv
 training_set.csv
+model_implementation/output

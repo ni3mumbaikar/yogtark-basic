@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import cv2
 import os
 import glob
 import pandas as pd
@@ -16,7 +15,6 @@ import time
 getCsv = False
 
 classes = []
-
 
 
 def generateIndividualCsv():
@@ -123,14 +121,15 @@ def generateTrainingSet():
 
 
 def modelinit():
-    yg = yogtark()
-    yg.train(100)
-    yg.test()
+    model = yogtark()
+    model.train(500)
+    model.test()
+    model.save()
 
 
 start = time.time()
 generateIndividualCsv()
 generateTrainingSet()
-# modelinit()
+modelinit()
 end = time.time()
 print('Task Done in ', str(end-start) + 's')

@@ -26,10 +26,6 @@ class yogtark:
 
         self.model = model
 
-    def print(self):
-        tf.print(self.model)
-        print('Hi I am a smart classfier')
-
     # Method to build model with tensorflow fit function
     def train(self, epoch):
 
@@ -76,3 +72,33 @@ class yogtark:
             print("trained model, accuracy: {:5.2f}%".format(100 * acc))
 
             print(len(x), len(y))
+
+    def get_file_size(self, file_path):
+        size = os.path.getsize(file_path)
+        return size
+
+    def convert_bytes(self, size, unit=None):
+        if unit == "KB":
+            return print('File size: ' + str(round(size / 1024, 3)) + ' Kilobytes')
+        elif unit == "MB":
+            return print('File size: ' + str(round(size / (1024 * 1024), 3)) + ' Megabytes')
+        else:
+            return print('File size: ' + str(size) + ' bytes')
+
+    def save(self):
+        savepath = './model_implementation/output'
+        if(not os.path(savepath)):
+            os.mkdir(savepath)
+        # Save as tensorflow model
+        KERAS_MODEL_NAME = "./model_implementation/output/tf_model_yogtark.h5"
+        self.model.save(KERAS_MODEL_NAME)
+        self.convert_bytes(self.get_file_size(KERAS_MODEL_NAME), "MB")
+
+        # Save as tflite model
+        TF_LITE_MODEL_FILE_NAME = "./model_implementation/output/tf_lite_model_yogtark.tflite"
+        tf_lite_converter = tf.lite.TFLiteConverter.from_keras_model(
+            self.model)
+        tflite_model = tf_lite_converter.convert()
+        tflite_model_name = TF_LITE_MODEL_FILE_NAME
+        open(tflite_model_name, "wb").write(tflite_model)
+        self.convert_bytes(self.get_file_size(TF_LITE_MODEL_FILE_NAME), "KB")

@@ -27,7 +27,7 @@ def generateIndividualCsv(classname,isTest):
     pathcheck(classname,isTest)
 
     filenames = [img for img in glob.glob(folder_path+'/*.jpeg')]
-    # filenames.sort()
+    filenames.sort()
     images = []
     count = 0
     for img in filenames:
