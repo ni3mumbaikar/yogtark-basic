@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 
+poses = ['downdog', 'goddess', 'plank', 'tree', 'warrior2']
 model_path = "../lite-model_movenet_singlepose_lightning_3.tflite"
 # model_path = "../lite-model_movenet_singlepose_thunder_3.tflite"
 interpreter = tf.lite.Interpreter(model_path)
@@ -91,12 +92,17 @@ while cap.isOpened():
     # Setup input and output
     yg_input_details = yg_interpreter.get_input_details()
     yg_output_details = yg_interpreter.get_output_details()
+    # print(yg_output_details)
 
     newkp = np.squeeze(keypoints_with_scores)
     featureVector = []
     for kp in newkp:
-        featureVector.append(kp[1])
-        featureVector.append(kp[0])
+        if(kp[2] > 0.5):
+            featureVector.append(kp[1])
+            featureVector.append(kp[0])
+        else:
+            featureVector.append(0)
+            featureVector.append(0)
     featureVector = np.array(featureVector, dtype=np.float32).reshape((1, 34))
 
     # Pose classification
@@ -105,7 +111,16 @@ while cap.isOpened():
     yg_interpreter.invoke()
     yg_pose = yg_interpreter.get_tensor(yg_output_details[0]['index'])
     # print(yg_pose)
-    print(featureVector)
+    a = yg_pose[0]
+    pose_prediction = np.interp(a, (a.min(), a.max()), (0, 1)).tolist()
+    # pose_prediction = np.array(pose_prediction, dtype=np.float16)
+    # print(pose_prediction)
+    # maximum = np.max(pose_prediction)
+    # print(maximum)
+    # index_of_maximum = np.where(pose_prediction == maximum)
+    maxpos = pose_prediction.index(max(pose_prediction))
+    print(poses[maxpos])
+
     cv2.imshow('MoveNet Lightning', frame)
 
     if cv2.waitKey(10) & 0xFF == ord('q'):

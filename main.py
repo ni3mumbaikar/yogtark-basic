@@ -120,6 +120,9 @@ def generateTrainingSet():
         print('Training set is already generated')
 
 
+start = time.time()
+
+
 def modelinit():
     model = yogtark()
     model.train(100)
@@ -127,9 +130,10 @@ def modelinit():
     model.save()
 
 
-start = time.time()
 generateIndividualCsv()
 generateTrainingSet()
+
 modelinit()
+
 end = time.time()
 print('Task Done in ', str(end-start) + 's')
