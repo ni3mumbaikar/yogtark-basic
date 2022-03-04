@@ -6,20 +6,31 @@ import numpy as np
 import cv2
 import csv
 from class_yogatark import yogtark
+from center_calculation import calculate_center
 
 """
 This script is intended to be used for data generation with image files stored in ../../dataset_images /['TEST' and 'TRAIN']
 Kindly follow the comments and do not edit any code unless you are sure what you are doing
+
+This script deals with
+
+1. Reading individual image and generating a csv file for each image
+2. Merge individual csv files that were generated for each image in first point and produce final training_set.csv
+   and testing_set.csv
+3. Now the Model Start processing the csv i.e. actual training and evaluation phase begins here using the model
+   skeleton defined in class_csv file
+4. Running a camera interface while utilizing the yogtark classifier which was generated as output of third point
+
 """
-poses = ['downdog',  'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
+poses = ['downdog', 'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
 
 
 def generateIndividualCsv(classname, isTest):
     folder_path = '../../dataset_images/'
     if isTest:
-        folder_path = folder_path + 'TEST/'+classname
+        folder_path = folder_path + 'TEST/' + classname
     else:
-        folder_path = folder_path+'TRAIN/'+classname
+        folder_path = folder_path + 'TRAIN/' + classname
 
     if not os.path.exists('../../dataset_csv'):
         os.mkdir('../../dataset_csv')
@@ -28,9 +39,8 @@ def generateIndividualCsv(classname, isTest):
 
     pathcheck(classname, isTest)
 
-    filenames = [img for img in glob.glob(folder_path+'/*.jpeg')]
+    filenames = [img for img in glob.glob(folder_path + '/*.jpeg')]
     filenames.sort()
-    images = []
     count = 0
     for img in filenames:
         df = pd.DataFrame({'Value': []})
@@ -41,12 +51,12 @@ def generateIndividualCsv(classname, isTest):
         input_image = tf.expand_dims(image, axis=0)
         input_image = tf.image.resize_with_pad(input_image, 256, 256)
 
-        # model_path = "lite-model_movenet_singlepose_thunder_3.tflite"
-        model_path = "../../lite-model_movenet_singlepose_thunder_tflite_float16_4.tflite"
+        model_path = "../../lite-model_movenet_singlepose_thunder_3.tflite"
+        # model_path = "../../lite-model_movenet_singlepose_thunder_tflite_float16_4.tflite"
         interpreter = tf.lite.Interpreter(model_path)
         interpreter.allocate_tensors()
 
-        input_image = tf.cast(input_image, dtype=tf.uint8)
+        input_image = tf.cast(input_image, dtype=tf.float32)
 
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
@@ -79,7 +89,7 @@ def generateIndividualCsv(classname, isTest):
         width = 640
         height = 640
 
-        KEYPOINT_EDGES = [(0, 1), (0, 2), (1, 3), (2, 4),  (5, 7),
+        KEYPOINT_EDGES = [(0, 1), (0, 2), (1, 3), (2, 4), (5, 7),
                           (7, 9), (6, 8), (8, 10), (5, 6), (5,
                                                             11), (6, 12), (11, 12), (11, 13),
                           (13, 15), (12, 14), (14, 16)]
@@ -92,8 +102,11 @@ def generateIndividualCsv(classname, isTest):
         image_np = cv2.resize(image_np, (width, height))
         image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
-        for keypoint in keypoints[0][0]:
+        print(type(keypoints[0][0]))
 
+        calculate_center(keypoints[0][0])
+
+        for keypoint in keypoints[0][0]:
             x_row = pd.Series(keypoint[1], index=df.columns)
             y_row = pd.Series(keypoint[0], index=df.columns)
             df = df.append(x_row, ignore_index=True)
@@ -104,7 +117,6 @@ def generateIndividualCsv(classname, isTest):
             cv2.circle(image_np, (x, y), 4, (0, 0, 255), -1)
 
         for edge in KEYPOINT_EDGES:
-
             x1 = int(keypoints[0][0][edge[0]][1] * width)
             y1 = int(keypoints[0][0][edge[0]][0] * height)
 
@@ -120,28 +132,27 @@ def generateIndividualCsv(classname, isTest):
         df['Keypoints'] = pd.Series(keypoint_string)
         if not isTest:
             df.to_csv(folder_path.replace('dataset_images',
-                      'dataset_csv')+'/'+classname+'_'+str(count)+'.csv')
+                                          'dataset_csv') + '/' + classname + '_' + str(count) + '.csv')
         else:
             df.to_csv(folder_path.replace('dataset_images',
-                      'dataset_csv')+'/'+classname+'_'+str(count)+'.csv')
+                                          'dataset_csv') + '/' + classname + '_' + str(count) + '.csv')
         count = count + 1
 
 
 def pathcheck(classname, isTest):
-
     if not isTest:
-        csv_path = '../../dataset_csv/TRAIN/'+classname
+        csv_path = '../../dataset_csv/TRAIN/' + classname
     else:
-        csv_path = '../../dataset_csv/TEST/'+classname
+        csv_path = '../../dataset_csv/TEST/' + classname
     if not os.path.exists(csv_path):
         os.mkdir(csv_path)
+
 
 # Generate final test and training set using this method
 
 
 def generateTrainingSet():
-
-    # new coloumn pose added for final csv
+    # new column pose added for final csv
     keypoint_string = [
         'noseX', 'noseY',
         'left_eyeX', 'left_eyeY',
@@ -169,13 +180,13 @@ def generateTrainingSet():
 
         for pose in poses:
             print('Loading class', pose)
-            testpath = '../../dataset_csv/TEST/'+pose
+            testpath = '../../dataset_csv/TEST/' + pose
             trainpath = testpath.replace('/TEST/', '/TRAIN/')
             paths = [testpath, trainpath]
             print(paths)
             for resourcepath in paths:
                 filenames = [csvfile for csvfile in glob.glob(
-                    resourcepath+'/*.csv')]
+                    resourcepath + '/*.csv')]
 
                 for filename in filenames:
                     filerow = []
@@ -221,11 +232,10 @@ def modelinit():
     model.save()
 
 
-# pose_label=0
-# for pose in poses:
-#     generateIndividualCsv(pose, True)
-#     generateIndividualCsv(pose, False)
+for pose in poses:
+    generateIndividualCsv(pose, True)
+    # generateIndividualCsv(pose, False)
 
-generateTrainingSet()
-modelinit()
-# pose_label+=1
+# generateTrainingSet()
+# modelinit()
+

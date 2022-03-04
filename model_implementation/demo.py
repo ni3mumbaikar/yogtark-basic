@@ -2,9 +2,19 @@ import tensorflow as tf
 import numpy as np
 import cv2
 
-poses = ['downdog', 'goddess', 'plank', 'tree', 'warrior2']
-model_path = "../lite-model_movenet_singlepose_lightning_3.tflite"
-# model_path = "../lite-model_movenet_singlepose_thunder_3.tflite"
+"""
+This script is intended to be used for running yogtark classifier with camera interface of machine
+Kindly follow the comments and do not edit any code unless you are sure what you are doing
+
+This script deals with
+
+1. Leveraging the yogtark classfication model to detect the current pose
+
+"""
+
+poses = ['downdog',  'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
+# model_path = "../lite-model_movenet_singlepose_lightning_3.tflite"
+model_path = "../lite-model_movenet_singlepose_thunder_3.tflite"
 interpreter = tf.lite.Interpreter(model_path)
 interpreter.allocate_tensors()
 
@@ -67,8 +77,8 @@ while cap.isOpened():
 
     # Reshape image
     img = frame.copy()
-    img = tf.image.resize_with_pad(np.expand_dims(img, axis=0), 192, 192)
-    # img = tf.image.resize_with_pad(np.expand_dims(img, axis=0), 256, 256)
+    # img = tf.image.resize_with_pad(np.expand_dims(img, axis=0), 192, 192)
+    img = tf.image.resize_with_pad(np.expand_dims(img, axis=0), 256, 256)
     input_image = tf.cast(img, dtype=tf.float32)
 
     # Setup input and output
@@ -97,7 +107,7 @@ while cap.isOpened():
     newkp = np.squeeze(keypoints_with_scores)
     featureVector = []
     for kp in newkp:
-        if(kp[2] > 0.5):
+        if kp[2] > 0.5:
             featureVector.append(kp[1])
             featureVector.append(kp[0])
         else:
@@ -114,10 +124,10 @@ while cap.isOpened():
     a = yg_pose[0]
     pose_prediction = np.interp(a, (a.min(), a.max()), (0, 1)).tolist()
     # pose_prediction = np.array(pose_prediction, dtype=np.float16)
-    # print(pose_prediction)
-    # maximum = np.max(pose_prediction)
-    # print(maximum)
-    # index_of_maximum = np.where(pose_prediction == maximum)
+    print(pose_prediction)
+    maximum = np.max(pose_prediction)
+    print(maximum)
+    index_of_maximum = np.where(pose_prediction == maximum)
     maxpos = pose_prediction.index(max(pose_prediction))
     print(poses[maxpos])
 
