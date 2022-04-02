@@ -6,3 +6,4 @@ tf-env
 testing_set.csv
 training_set.csv
 model_implementation/output
+/dataset_images.zip
