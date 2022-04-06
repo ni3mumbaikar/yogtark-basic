@@ -2,23 +2,10 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from Preprocessor import processWithCenterOfBody
+import threading
 import pyttsx3
 
-
-
-engine = pyttsx3.init()
-
-# setting speed and volume of voice
-# engine.setProperty('rate', 120)
-engine.setProperty('volume',1.0)
-
-# setting female voice
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[1].id)
-
-engine.say("Please wait .. Launching camera ...")
-
-engine.runAndWait()
+from speaker import *
 
 """
 This script is intended to be used for running yogtark classifier with camera interface of machine
@@ -32,14 +19,21 @@ This script deals with
 
 np.set_printoptions(suppress=True)
 
-poses = ['downdog', 'chair', 'tree', 'goddess', 'warrior2', 'no_pose']
+# s = speaker()
+
+eng = pyttsx3.init()
+eng.say("Please take your position in 5 seconds")
+eng.runAndWait()
+
+poses = ['downdog', 'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
 # poses = ['downdog', 'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
 # model_path = "../lite-model_movenet_singlepose_thunder_3.tflite"
 model_path = "../lite-model_movenet_singlepose_lightning_3.tflite"
 interpreter = tf.lite.Interpreter(model_path)
 interpreter.allocate_tensors()
-
-
+# Setup input and output
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 
 def draw_connections(frame, keypoints, edges, confidence_threshold):
@@ -158,7 +152,28 @@ def implementYg(keypoints_with_scores):
 
 
 cap = cv2.VideoCapture(0)
-while cap.isOpened():
+
+isFirstFrame = True
+
+
+def first_frame_logic():
+    global isFirstFrame
+
+    s = speaker()
+
+    t1 = threading.Thread(
+        target=s.speak(), daemon=True)
+
+    t2 = threading.Thread(
+        target=render(isFirstFrame), daemon=True)
+
+    t2.start()
+    t1.start()
+
+    isFirstFrame = False
+
+
+def render(flag):
     ret, frame = cap.read()
 
     # Reshape image
@@ -166,10 +181,6 @@ while cap.isOpened():
     img = tf.image.resize_with_pad(np.expand_dims(frame, axis=0), 192, 192)
     # img = tf.image.resize_with_pad(np.expand_dims(frame, axis=0), 256, 256)
     input_image = tf.cast(img, dtype=tf.float32)
-
-    # Setup input and output
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
 
     # Make predictions
     interpreter.set_tensor(input_details[0]['index'], np.array(input_image))
@@ -187,8 +198,16 @@ while cap.isOpened():
         implementYg(keypoints_with_scores)
         cv2.imshow('MoveNet Lightning', frame)
 
+
+while cap.isOpened():
+    if isFirstFrame:
+        first_frame_logic()
+    else:
+        render(isFirstFrame)
+
+
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-# cap.release()
+cap.release()
 cv2.destroyAllWindows()

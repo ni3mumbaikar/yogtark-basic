@@ -31,11 +31,10 @@ def get_distance_from_centre(keypoints, centerBody):
 
 
 def normalize(keypoints, width, height):
-    print(keypoints)
     for keypoint in keypoints:
         keypoint[1] = int(keypoint[1] * height)
         keypoint[0] = int(keypoint[0] * width)
-    print(keypoints)
+
 
 def getBodyCentre(keypoints, center_threshold=0.5):
     if keypoints.shape != (17, 3):

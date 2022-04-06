@@ -22,7 +22,7 @@ This script deals with
 4. Running a camera interface while utilizing the yogtark classifier which was generated as output of third point
 
 """
-poses = ['downdog', 'plank', 'tree', 'goddess', 'warrior2', 'no_pose']
+poses = ['downdog', 'chair', 'tree', 'goddess', 'warrior2', 'no_pose']
 
 # Toggle this to generate csv for individual images
 generateCSV = True
@@ -125,8 +125,8 @@ def generateIndividualCsv(classname, isTest):
                 keypoint[0])), 4, (0, 0, 255), -1)
 
         # comment next two lines if you don't want to see output of detected images directly use the output
-        cv2.imshow("pose estimation", image_np)
-        cv2.waitKey()
+        # cv2.imshow("pose estimation", image_np)
+        # cv2.waitKey()
 
         df['Keypoints'] = pd.Series(keypoint_string)
         if not isTest:
