@@ -4,6 +4,7 @@ import os
 import csv
 import numpy as np
 import tensorflowjs as tfjs
+import matplotlib.pyplot as plt
 
 
 class yogtark:
@@ -22,11 +23,11 @@ class yogtark:
         # model.add(layer_4)
 
         inputs = tf.keras.Input(shape=34)
-        layer = tf.keras.layers.Dense(128, activation=tf.nn.relu6)(inputs)
-        layer = tf.keras.layers.Dropout(0.5)(layer)
-        layer = tf.keras.layers.Dense(64, activation=tf.nn.relu6)(layer)
-        layer = tf.keras.layers.Dropout(0.5)(layer)
-        outputs = tf.keras.layers.Dense(6, activation="softmax")(layer)
+        layer1 = tf.keras.layers.Dense(128, activation=tf.nn.relu6)(inputs)
+        layer2 = tf.keras.layers.Dropout(0.5)(layer1)
+        layer3 = tf.keras.layers.Dense(64, activation=tf.nn.relu6)(layer2)
+        layer4 = tf.keras.layers.Dropout(0.5)(layer3)
+        outputs = tf.keras.layers.Dense(6, activation="softmax")(layer4)
 
         model = tf.keras.Model(inputs, outputs)
 
@@ -56,8 +57,22 @@ class yogtark:
             x = np.array(x, dtype=np.float64)
             y = np.array(y, dtype=np.float64)
             print(len(x), len(y))
+            history = self.model.fit(x=x, y=y, shuffle=True, epochs=epoch)
+            # print(history.history)
+            plt.plot(history.history['sparse_categorical_accuracy'])
+            plt.title('Model Accuracy')
+            plt.ylabel('accuracy')
+            plt.xlabel('epoch')
+            plt.legend(['train'], loc="upper left")
+            plt.show()
 
-            self.model.fit(x=x, y=y, shuffle=True, epochs=epoch)
+            plt.plot(history.history['loss'])
+            plt.title('Model Loss')
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.legend(['train'], loc="upper left")
+            plt.show()
+
 
         else:
             print('CSV File not found : Generate CSV first')
@@ -70,7 +85,7 @@ class yogtark:
         if os.path.exists(training_set):
             with open(training_set, 'r') as csvfile:
                 csvreader = csv.reader(csvfile)
-                fields = next(csvreader)
+                next(csvreader)
                 for row in csvreader:
                     row.pop(0)
                     y.append(row.pop())
@@ -115,7 +130,3 @@ class yogtark:
         tflite_model_name = TF_LITE_MODEL_FILE_NAME
         open(tflite_model_name, "wb").write(tflite_model)
         self.convert_bytes(self.get_file_size(TF_LITE_MODEL_FILE_NAME), "KB")
-
-
-
-

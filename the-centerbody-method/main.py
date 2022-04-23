@@ -125,8 +125,8 @@ def generateIndividualCsv(classname, isTest):
                 keypoint[0])), 4, (0, 0, 255), -1)
 
         # comment next two lines if you don't want to see output of detected images directly use the output
-        # cv2.imshow("pose estimation", image_np)
-        # cv2.waitKey()
+        cv2.imshow("pose estimation", image_np)
+        cv2.waitKey()
 
         df['Keypoints'] = pd.Series(keypoint_string)
         if not isTest:
@@ -208,11 +208,11 @@ def generateTrainingSet():
                         csvreader = csv.reader(csvfile)
 
                         # extracting field names through first row
-                        fields = next(csvreader)
+                        next(csvreader)
 
                         # extracting each data row one by one
                         for row in csvreader:
-                            # removing name of keypoint and index colounn
+                            # removing name of keypoint and index column
                             row.pop(2)
                             row.pop(0)
                             # appending value of x/y only instead of [54.242] it is now 54.242
