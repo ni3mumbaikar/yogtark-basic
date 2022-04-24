@@ -27,6 +27,7 @@ poses = ['downdog', 'chair', 'tree', 'goddess', 'warrior2', 'no_pose']
 # Toggle this to generate csv for individual images
 generateCSV = True
 
+
 # noinspection PyUnresolvedReferences
 
 
@@ -113,6 +114,7 @@ def generateIndividualCsv(classname, isTest):
         cv2.circle(image_np, (int(centerBody[0]), int(
             centerBody[1])), 10, (0, 255, 255), -1)
 
+
         for distance in distanceList:
             x_row = pd.Series(distance[0], index=df.columns)
             y_row = pd.Series(distance[1], index=df.columns)
@@ -125,8 +127,8 @@ def generateIndividualCsv(classname, isTest):
                 keypoint[0])), 4, (0, 0, 255), -1)
 
         # comment next two lines if you don't want to see output of detected images directly use the output
-        cv2.imshow("pose estimation", image_np)
-        cv2.waitKey()
+        # cv2.imshow("pose estimation", image_np)
+        # cv2.waitKey()
 
         df['Keypoints'] = pd.Series(keypoint_string)
         if not isTest:

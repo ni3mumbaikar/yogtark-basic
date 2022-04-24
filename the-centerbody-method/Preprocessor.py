@@ -2,9 +2,28 @@ import numpy
 import numpy as np
 
 
+def normalize_zero_one(arr, t_min, t_max):
+    norm_arr = []
+    diff = t_max - t_min
+    diff_arr = max(arr) - min(arr)
+    for i in arr:
+        temp = (((i - min(arr)) * diff) / diff_arr) + t_min
+        norm_arr.append(temp)
+    return norm_arr
+
+
+def normalize_2d(data):
+    # Only this is changed to use 2-norm put 2 instead of 1
+    # norm = np.linalg.norm(matrix, 2)
+    # normalized matrix
+    # matrix = matrix / norm
+    return (data - np.min(data)) / (np.max(data) - np.min(data))
+
+    # return matrix
+
+
 def processWithCenterOfBody(keypoints: np.ndarray, width, height, center_threshold=0.5):
     np.set_printoptions(suppress=True)
-    # print('Keypoints', np.array(keypoints))
 
     # To scale up coordinates
     normalize(keypoints, width, height)
@@ -12,7 +31,7 @@ def processWithCenterOfBody(keypoints: np.ndarray, width, height, center_thresho
     centerBody = getBodyCentre(keypoints, center_threshold)
     # To get distance of each kp from center
     distance_list = get_distance_from_centre(keypoints, centerBody)
-
+    distance_list = normalize_2d(distance_list)
     return [centerBody, distance_list]
 
 
